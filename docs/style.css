@@ -1,4 +1,12 @@
 body {
-	margin: 0;
-	padding: 0;
+  margin: 0;
+  padding: 0;
+}
+
+#branching-canvas {
+  width: 100vw;
+  max-width: 100vh;
+  height: 100 vh;
+  max-height: 100vw;
+  border: red;
 }
