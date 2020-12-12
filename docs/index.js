@@ -35,69 +35,69 @@ const renderLoopMaker = (canvas, context) => {
     if (newCentre !== null) {
       centres.push(newCentre)
       liveCentres.push(newCentre)
+    }
 
-      let width = canvas.width
-      let height = canvas.height
+    let width = canvas.width
+    let height = canvas.height
 
-      let minX = Math.min(...centres.map(centre => centre.x)) - 1
-      let maxX = Math.max(...centres.map(centre => centre.x)) + 1
-      let midX = (minX + maxX) / 2
-      let minY = Math.min(...centres.map(centre => centre.y)) - 1
-      let maxY = Math.max(...centres.map(centre => centre.y)) + 1
-      let midY = (minY + maxY) / 2
+    let minX = Math.min(...centres.map(centre => centre.x)) - 1
+    let maxX = Math.max(...centres.map(centre => centre.x)) + 1
+    let midX = (minX + maxX) / 2
+    let minY = Math.min(...centres.map(centre => centre.y)) - 1
+    let maxY = Math.max(...centres.map(centre => centre.y)) + 1
+    let midY = (minY + maxY) / 2
 
-      xScale = width / (maxX - minX)
-      yScale = height / (maxY - minY)
-      scale = Math.min(xScale, yScale)
+    xScale = width / (maxX - minX)
+    yScale = height / (maxY - minY)
+    scale = Math.min(xScale, yScale)
 
-      xOffset = width / 2
-      yOffset = height / 2
+    xOffset = width / 2
+    yOffset = height / 2
 
-      context.strokeStyle = 'white'
-      context.lineWidth = scale / 2
+    context.strokeStyle = 'white'
+    context.lineWidth = scale / 2
 
-      context.clearRect(0, 0, width, height)
+    context.clearRect(0, 0, width, height)
 
-      for (let centre of centres) {
-        adjustedX = (centre.x - midX) * scale + width / 2
-        adjustedY = (centre.y - midY) * scale + height / 2
-        adjustedParentX = (centre.parentX - midX) * scale + width / 2
-        adjustedParentY = (centre.parentY - midY) * scale + height / 2
+    for (let centre of centres) {
+      adjustedX = (centre.x - midX) * scale + width / 2
+      adjustedY = (centre.y - midY) * scale + height / 2
+      adjustedParentX = (centre.parentX - midX) * scale + width / 2
+      adjustedParentY = (centre.parentY - midY) * scale + height / 2
 
-        if (centre.opportunities > 0) {
-          context.fillStyle = 'green'
-        } else {
-          context.fillStyle = 'black'
-        }
-
-        context.beginPath()
-        context.arc(
-          adjustedX,
-          adjustedY,
-          scale,
-          0,
-          2 * Math.PI
-        )
-        context.closePath()
-        context.fill()
-
-        context.fillStyle = 'white'
-        context.beginPath()
-        context.arc(
-          adjustedX,
-          adjustedY,
-          scale / 4,
-          0,
-          2 * Math.PI
-        )
-        context.closePath()
-        context.fill()
-
-        context.beginPath()
-        context.moveTo(adjustedX, adjustedY)
-        context.lineTo(adjustedParentX, adjustedParentY)
-        context.stroke()
+      if (centre.opportunities > 0) {
+        context.fillStyle = 'green'
+      } else {
+        context.fillStyle = 'black'
       }
+
+      context.beginPath()
+      context.arc(
+        adjustedX,
+        adjustedY,
+        scale,
+        0,
+        2 * Math.PI
+      )
+      context.closePath()
+      context.fill()
+
+      context.fillStyle = 'white'
+      context.beginPath()
+      context.arc(
+        adjustedX,
+        adjustedY,
+        scale / 4,
+        0,
+        2 * Math.PI
+      )
+      context.closePath()
+      context.fill()
+
+      context.beginPath()
+      context.moveTo(adjustedX, adjustedY)
+      context.lineTo(adjustedParentX, adjustedParentY)
+      context.stroke()
     }
 
     window.requestAnimationFrame(renderLoop)
