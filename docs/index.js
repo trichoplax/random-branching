@@ -1,3 +1,5 @@
+const OPPORTUNITIES = 7
+
 document.addEventListener('DOMContentLoaded', () => {
   const canvas = document.getElementById('branching-canvas')
   const context = canvas.getContext('2d')
@@ -23,6 +25,7 @@ const renderLoopMaker = (canvas, context) => {
     y: 0,
     parentX: 0,
     parentY: 0,
+    opportunities: OPPORTUNITIES,
   }]
 
   return function renderLoop() {
@@ -58,7 +61,12 @@ const renderLoopMaker = (canvas, context) => {
         adjustedParentX = (centre.parentX - midX) * scale + width / 2
         adjustedParentY = (centre.parentY - midY) * scale + height / 2
 
-        context.fillStyle = 'black'
+        if (centre.opportunities > 0) {
+          context.fillStyle = 'green'
+        } else {
+          context.fillStyle = 'black'
+        }
+
         context.beginPath()
         context.arc(
           adjustedX,
@@ -95,15 +103,23 @@ const renderLoopMaker = (canvas, context) => {
 
 const attemptNewCentre = centres => {
   const parent = centres[Math.floor(Math.random() * centres.length)]
-  const angle = Math.random() * 2 * Math.PI
 
-  let parentX = parent.x
-  let parentY = parent.y
-  let x = parentX + Math.cos(angle) * 2
-  let y = parentY + Math.sin(angle) * 2
-  candidate = {x, y, parentX, parentY}
+  if (parent.opportunities > 0) {
+    parent.opportunities -= 1
 
-  if (overlap(centres, candidate)) {
+    const angle = Math.random() * 2 * Math.PI
+
+    let opportunities = OPPORTUNITIES
+    let parentX = parent.x
+    let parentY = parent.y
+    let x = parentX + Math.cos(angle) * 2
+    let y = parentY + Math.sin(angle) * 2
+    candidate = {x, y, parentX, parentY, opportunities}
+
+    if (overlap(centres, candidate)) {
+      candidate = null
+    }
+  } else {
     candidate = null
   }
 
