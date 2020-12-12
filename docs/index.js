@@ -77,10 +77,10 @@ const renderLoopMaker = (canvas, context) => {
     context.clearRect(0, 0, width, height)
 
     for (let centre of centres) {
-      adjustedX = (centre.location.x - midX) * scale + width / 2
-      adjustedY = (centre.location.y - midY) * scale + height / 2
-      adjustedParentX = (centre.parent.x - midX) * scale + width / 2
-      adjustedParentY = (centre.parent.y - midY) * scale + height / 2
+      adjustedX = (centre.location.x - midX) * scale + xOffset
+      adjustedY = (centre.location.y - midY) * scale + yOffset
+      adjustedParentX = (centre.parent.x - midX) * scale + xOffset
+      adjustedParentY = (centre.parent.y - midY) * scale + yOffset
 
       if (centre.expired == 0) {
         context.fillStyle = 'rgb(196, 255, 150)'
