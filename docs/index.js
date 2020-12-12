@@ -17,19 +17,40 @@ const fitCanvasMaker = canvas => () => {
   canvas.height = computed.height.slice(0, -2)
 }
 
-const renderLoopMaker = (canvas, context) => function renderLoop() {
-  let width = canvas.width
-  let height = canvas.height
+const renderLoopMaker = (canvas, context) => {
+  let centres = [[2,2], [3,4], [5, 5], [100, 70]]
 
-  context.arc(
-    width / 2,
-    height / 2,
-    Math.min(width, height) / 2,
-    0,
-    2 * Math.PI
-  )
-  context.fill()
+  return function renderLoop() {
+    let width = canvas.width
+    let height = canvas.height
 
-  window.requestAnimationFrame(renderLoop)
+    let minX = Math.min(...centres.map(centre => centre[0])) - 1
+    let maxX = Math.max(...centres.map(centre => centre[0])) + 1
+    let midX = (minX + maxX) / 2
+    let minY = Math.min(...centres.map(centre => centre[1])) - 1
+    let maxY = Math.max(...centres.map(centre => centre[1])) + 1
+    let midY = (minY + maxY) / 2
+
+    xScale = width / (maxX - minX)
+    yScale = height / (maxY - minY)
+    scale = Math.min(xScale, yScale)
+
+    xOffset = width / 2
+    yOffset = height / 2
+
+    for (let centre of centres) {
+      context.arc(
+        (centre[0] - midX) * scale + width / 2,
+        (centre[1] - midY) * scale + height / 2,
+        scale,
+        0,
+        2 * Math.PI
+      )
+      context.closePath()
+      context.fill()
+    }
+
+    window.requestAnimationFrame(renderLoop)
+  }
 }
 
