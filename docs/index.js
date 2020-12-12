@@ -18,9 +18,14 @@ const fitCanvasMaker = canvas => () => {
 }
 
 const renderLoopMaker = (canvas, context) => {
-  let centres = [[2,2], [3,4], [5, 5], [100, 70]]
+  let centres = [[0, 0]]
 
   return function renderLoop() {
+    newCentre = attemptNewCentre(centres)
+    if (newCentre !== null) {
+      centres.push(newCentre)
+    }
+
     let width = canvas.width
     let height = canvas.height
 
@@ -52,5 +57,11 @@ const renderLoopMaker = (canvas, context) => {
 
     window.requestAnimationFrame(renderLoop)
   }
+}
+
+const attemptNewCentre = centres => {
+  let x = Math.random() * 10 - 5
+  let y = Math.random() * 10 - 5
+  return [x, y]
 }
 
