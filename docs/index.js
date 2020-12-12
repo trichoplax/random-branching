@@ -63,12 +63,17 @@ const renderLoopMaker = (canvas, context) => {
 }
 
 const attemptNewCentre = centres => {
-  let x = Math.random() * 10 - 5
-  let y = Math.random() * 10 - 5
+  const parent = centres[Math.floor(Math.random() * centres.length)]
+  const angle = Math.random() * 2 * Math.PI
+
+  let x = parent[0] + Math.cos(angle) * 2
+  let y = parent[1] + Math.sin(angle) * 2
   candidate = [x, y]
+
   if (overlap(centres, candidate)) {
     candidate = null
   }
+
   return candidate
 }
 
