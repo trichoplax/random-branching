@@ -21,10 +21,14 @@ const fitCanvasMaker = canvas => () => {
 
 const renderLoopMaker = (canvas, context) => {
   let centres = [{
-    x: 0,
-    y: 0,
-    parentX: 0,
-    parentY: 0,
+    location: {
+      x: 0,
+      y: 0,
+    },
+    parent: {
+      x: 0,
+      y: 0,
+    },
     colour: {
       red: 98,
       green: 98,
@@ -49,11 +53,11 @@ const renderLoopMaker = (canvas, context) => {
     let width = canvas.width
     let height = canvas.height
 
-    let minX = Math.min(...centres.map(centre => centre.x)) - 1
-    let maxX = Math.max(...centres.map(centre => centre.x)) + 1
+    let minX = Math.min(...centres.map(centre => centre.location.x)) - 1
+    let maxX = Math.max(...centres.map(centre => centre.location.x)) + 1
     let midXTarget = (minX + maxX) / 2
-    let minY = Math.min(...centres.map(centre => centre.y)) - 1
-    let maxY = Math.max(...centres.map(centre => centre.y)) + 1
+    let minY = Math.min(...centres.map(centre => centre.location.y)) - 1
+    let maxY = Math.max(...centres.map(centre => centre.location.y)) + 1
     let midYTarget = (minY + maxY) / 2
 
     let xScale = width / (maxX - minX)
@@ -73,10 +77,10 @@ const renderLoopMaker = (canvas, context) => {
     context.clearRect(0, 0, width, height)
 
     for (let centre of centres) {
-      adjustedX = (centre.x - midX) * scale + width / 2
-      adjustedY = (centre.y - midY) * scale + height / 2
-      adjustedParentX = (centre.parentX - midX) * scale + width / 2
-      adjustedParentY = (centre.parentY - midY) * scale + height / 2
+      adjustedX = (centre.location.x - midX) * scale + width / 2
+      adjustedY = (centre.location.y - midY) * scale + height / 2
+      adjustedParentX = (centre.parent.x - midX) * scale + width / 2
+      adjustedParentY = (centre.parent.y - midY) * scale + height / 2
 
       if (centre.expired == 0) {
         context.fillStyle = 'rgb(196, 255, 150)'
@@ -127,26 +131,26 @@ const attemptNewCentre = (centres, liveCentres) => {
 
   if (liveCentres.length > 0) {
     const index = Math.floor(Math.random() * liveCentres.length)
-    const parent = liveCentres[index]
-
-    parent.opportunities -= 1
+    const potentialParent = liveCentres[index]
 
     const angle = Math.random() * 2 * Math.PI
 
     let expired = 0
-    let colour = driftColour(parent.colour)
-    let parentX = parent.x
-    let parentY = parent.y
-    let x = parentX + Math.cos(angle) * 2
-    let y = parentY + Math.sin(angle) * 2
-    candidate = {x, y, parentX, parentY, colour, expired}
+    let colour = driftColour(potentialParent.colour)
+    let potentialParentX = potentialParent.location.x
+    let potentialParentY = potentialParent.location.y
+    let parent = {x: potentialParentX, y: potentialParentY}
+    let x = potentialParentX + Math.cos(angle) * 2
+    let y = potentialParentY + Math.sin(angle) * 2
+    let location = {x, y}
+    candidate = {location, parent, colour, expired}
 
     if (overlap(centres, candidate)) {
       candidate = null
     }
 
     if (Math.random() < EXPIRY_PROBABILITY) {
-      parent.expired = 1
+      potentialParent.expired = 1
       liveCentres.splice(index, 1)
     }
   }
@@ -156,7 +160,7 @@ const attemptNewCentre = (centres, liveCentres) => {
 
 const overlap = (centres, candidate) => {
   for (let centre of centres) {
-    if (distance_squared(centre, candidate) < 4) {
+    if (distance_squared(centre.location, candidate.location) < 4) {
       return true
     }
   }
