@@ -1,4 +1,4 @@
-const OPPORTUNITIES = 7
+const EXPIRY_PROBABILITY = 0.1
 
 document.addEventListener('DOMContentLoaded', () => {
   const canvas = document.getElementById('branching-canvas')
@@ -30,7 +30,7 @@ const renderLoopMaker = (canvas, context) => {
       green: 98,
       blue: 98,
     },
-    opportunities: OPPORTUNITIES,
+    expired: 0,
   }]
 
   let liveCentres = [...centres]
@@ -78,7 +78,7 @@ const renderLoopMaker = (canvas, context) => {
       adjustedParentX = (centre.parentX - midX) * scale + width / 2
       adjustedParentY = (centre.parentY - midY) * scale + height / 2
 
-      if (centre.opportunities > 0) {
+      if (centre.expired == 0) {
         context.fillStyle = 'rgb(196, 255, 150)'
       } else {
         let colour = centre.colour
@@ -133,19 +133,20 @@ const attemptNewCentre = (centres, liveCentres) => {
 
     const angle = Math.random() * 2 * Math.PI
 
-    let opportunities = OPPORTUNITIES
+    let expired = 0
     let colour = driftColour(parent.colour)
     let parentX = parent.x
     let parentY = parent.y
     let x = parentX + Math.cos(angle) * 2
     let y = parentY + Math.sin(angle) * 2
-    candidate = {x, y, parentX, parentY, colour, opportunities}
+    candidate = {x, y, parentX, parentY, colour, expired}
 
     if (overlap(centres, candidate)) {
       candidate = null
     }
 
-    if (parent.opportunities == 0) {
+    if (Math.random() < EXPIRY_PROBABILITY) {
+      parent.expired = 1
       liveCentres.splice(index, 1)
     }
   }
