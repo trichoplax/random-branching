@@ -25,6 +25,11 @@ const renderLoopMaker = (canvas, context) => {
     y: 0,
     parentX: 0,
     parentY: 0,
+    colour: {
+      red: 98,
+      green: 98,
+      blue: 98,
+    },
     opportunities: OPPORTUNITIES,
   }]
 
@@ -66,9 +71,14 @@ const renderLoopMaker = (canvas, context) => {
       adjustedParentY = (centre.parentY - midY) * scale + height / 2
 
       if (centre.opportunities > 0) {
-        context.fillStyle = 'green'
+        context.fillStyle = 'rgb(196, 255, 150)'
       } else {
-        context.fillStyle = 'black'
+        let colour = centre.colour
+        context.fillStyle = `rgb(
+          ${colour.red},
+          ${colour.green},
+          ${colour.blue}
+        )`
       }
 
       context.beginPath()
@@ -116,11 +126,12 @@ const attemptNewCentre = (centres, liveCentres) => {
     const angle = Math.random() * 2 * Math.PI
 
     let opportunities = OPPORTUNITIES
+    let colour = driftColour(parent.colour)
     let parentX = parent.x
     let parentY = parent.y
     let x = parentX + Math.cos(angle) * 2
     let y = parentY + Math.sin(angle) * 2
-    candidate = {x, y, parentX, parentY, opportunities}
+    candidate = {x, y, parentX, parentY, colour, opportunities}
 
     if (overlap(centres, candidate)) {
       candidate = null
@@ -146,5 +157,31 @@ const overlap = (centres, candidate) => {
 
 const distance_squared = (a, b) => {
   return (b.x - a.x) ** 2 + (b.y - a.y) ** 2
+}
+
+const driftColour = colour => {
+  const red = Math.min(
+    196,
+    Math.max(
+      0,
+      colour.red + Math.floor(Math.random() * 25) - 12
+    )
+  )
+  const green = Math.min(
+    196,
+    Math.max(
+      0,
+      colour.green + Math.floor(Math.random() * 25) - 12
+    )
+  )
+  const blue = Math.min(
+    196,
+    Math.max(
+      0,
+      colour.blue + Math.floor(Math.random() * 25) - 12
+    )
+  )
+
+  return {red, green, blue}
 }
 
