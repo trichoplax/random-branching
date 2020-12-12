@@ -2,10 +2,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const canvas = document.getElementById('branching-canvas')
   const context = canvas.getContext('2d')
 
-  let computed = getComputedStyle(canvas)
-
-  canvas.width = computed.width.slice(0, -2)
-  canvas.height = computed.height.slice(0, -2)
+  fitCanvas = canvasFitter(canvas)
+  fitCanvas()
+  window.onresize = fitCanvas
 
   let width = canvas.width
   let height = canvas.height
@@ -19,4 +18,13 @@ document.addEventListener('DOMContentLoaded', () => {
   )
   context.fill()
 })
+
+const canvasFitter = canvas => () => {
+  let computed = getComputedStyle(canvas)
+
+  canvas.width = computed.width.slice(0, -2)
+  canvas.height = computed.height.slice(0, -2)
+
+  console.log(canvas.width, canvas.height)
+}
 
