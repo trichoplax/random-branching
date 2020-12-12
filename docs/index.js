@@ -18,7 +18,12 @@ const fitCanvasMaker = canvas => () => {
 }
 
 const renderLoopMaker = (canvas, context) => {
-  let centres = [[0, 0]]
+  let centres = [{
+    x: 0,
+    y: 0,
+    parentX: 0,
+    parentY: 0,
+  }]
 
   return function renderLoop() {
     newCentre = attemptNewCentre(centres)
@@ -28,11 +33,11 @@ const renderLoopMaker = (canvas, context) => {
       let width = canvas.width
       let height = canvas.height
 
-      let minX = Math.min(...centres.map(centre => centre[0])) - 1
-      let maxX = Math.max(...centres.map(centre => centre[0])) + 1
+      let minX = Math.min(...centres.map(centre => centre.x)) - 1
+      let maxX = Math.max(...centres.map(centre => centre.x)) + 1
       let midX = (minX + maxX) / 2
-      let minY = Math.min(...centres.map(centre => centre[1])) - 1
-      let maxY = Math.max(...centres.map(centre => centre[1])) + 1
+      let minY = Math.min(...centres.map(centre => centre.y)) - 1
+      let maxY = Math.max(...centres.map(centre => centre.y)) + 1
       let midY = (minY + maxY) / 2
 
       xScale = width / (maxX - minX)
@@ -42,19 +47,45 @@ const renderLoopMaker = (canvas, context) => {
       xOffset = width / 2
       yOffset = height / 2
 
+      context.strokeStyle = 'white'
+      context.lineWidth = scale / 2
+
       context.clearRect(0, 0, width, height)
 
       for (let centre of centres) {
+        adjustedX = (centre.x - midX) * scale + width / 2
+        adjustedY = (centre.y - midY) * scale + height / 2
+        adjustedParentX = (centre.parentX - midX) * scale + width / 2
+        adjustedParentY = (centre.parentY - midY) * scale + height / 2
+
+        context.fillStyle = 'black'
         context.beginPath()
         context.arc(
-          (centre[0] - midX) * scale + width / 2,
-          (centre[1] - midY) * scale + height / 2,
+          adjustedX,
+          adjustedY,
           scale,
           0,
           2 * Math.PI
         )
         context.closePath()
         context.fill()
+
+        context.fillStyle = 'white'
+        context.beginPath()
+        context.arc(
+          adjustedX,
+          adjustedY,
+          scale / 4,
+          0,
+          2 * Math.PI
+        )
+        context.closePath()
+        context.fill()
+
+        context.beginPath()
+        context.moveTo(adjustedX, adjustedY)
+        context.lineTo(adjustedParentX, adjustedParentY)
+        context.stroke()
       }
     }
 
@@ -66,9 +97,11 @@ const attemptNewCentre = centres => {
   const parent = centres[Math.floor(Math.random() * centres.length)]
   const angle = Math.random() * 2 * Math.PI
 
-  let x = parent[0] + Math.cos(angle) * 2
-  let y = parent[1] + Math.sin(angle) * 2
-  candidate = [x, y]
+  let parentX = parent.x
+  let parentY = parent.y
+  let x = parentX + Math.cos(angle) * 2
+  let y = parentY + Math.sin(angle) * 2
+  candidate = {x, y, parentX, parentY}
 
   if (overlap(centres, candidate)) {
     candidate = null
@@ -88,6 +121,6 @@ const overlap = (centres, candidate) => {
 }
 
 const distance_squared = (a, b) => {
-  return (b[0] - a[0]) ** 2 + (b[1] - a[1]) ** 2
+  return (b.x - a.x) ** 2 + (b.y - a.y) ** 2
 }
 
