@@ -28,10 +28,13 @@ const renderLoopMaker = (canvas, context) => {
     opportunities: OPPORTUNITIES,
   }]
 
+  let liveCentres = [...centres]
+
   return function renderLoop() {
-    newCentre = attemptNewCentre(centres)
+    newCentre = attemptNewCentre(centres, liveCentres)
     if (newCentre !== null) {
       centres.push(newCentre)
+      liveCentres.push(newCentre)
 
       let width = canvas.width
       let height = canvas.height
@@ -101,10 +104,13 @@ const renderLoopMaker = (canvas, context) => {
   }
 }
 
-const attemptNewCentre = centres => {
-  const parent = centres[Math.floor(Math.random() * centres.length)]
+const attemptNewCentre = (centres, liveCentres) => {
+  let candidate = null
 
-  if (parent.opportunities > 0) {
+  if (liveCentres.length > 0) {
+    const index = Math.floor(Math.random() * liveCentres.length)
+    const parent = liveCentres[index]
+
     parent.opportunities -= 1
 
     const angle = Math.random() * 2 * Math.PI
@@ -119,8 +125,10 @@ const attemptNewCentre = centres => {
     if (overlap(centres, candidate)) {
       candidate = null
     }
-  } else {
-    candidate = null
+
+    if (parent.opportunities == 0) {
+      liveCentres.splice(index, 1)
+    }
   }
 
   return candidate
