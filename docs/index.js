@@ -35,8 +35,12 @@ const renderLoopMaker = (canvas, context) => {
 
   let liveCentres = [...centres]
 
+  let midX = 0
+  let midY = 0
+  let scale = 1
+
   return function renderLoop() {
-    newCentre = attemptNewCentre(centres, liveCentres)
+    const newCentre = attemptNewCentre(centres, liveCentres)
     if (newCentre !== null) {
       centres.push(newCentre)
       liveCentres.push(newCentre)
@@ -47,17 +51,21 @@ const renderLoopMaker = (canvas, context) => {
 
     let minX = Math.min(...centres.map(centre => centre.x)) - 1
     let maxX = Math.max(...centres.map(centre => centre.x)) + 1
-    let midX = (minX + maxX) / 2
+    let midXTarget = (minX + maxX) / 2
     let minY = Math.min(...centres.map(centre => centre.y)) - 1
     let maxY = Math.max(...centres.map(centre => centre.y)) + 1
-    let midY = (minY + maxY) / 2
+    let midYTarget = (minY + maxY) / 2
 
-    xScale = width / (maxX - minX)
-    yScale = height / (maxY - minY)
-    scale = Math.min(xScale, yScale)
+    let xScale = width / (maxX - minX)
+    let yScale = height / (maxY - minY)
+    let scaleTarget = Math.min(xScale, yScale)
 
-    xOffset = width / 2
-    yOffset = height / 2
+    let xOffset = width / 2
+    let yOffset = height / 2
+
+    midX = approach(midX, midXTarget)
+    midY = approach(midY, midYTarget)
+    scale = approach(scale, scaleTarget)
 
     context.strokeStyle = 'white'
     context.lineWidth = scale / 2
@@ -183,5 +191,10 @@ const driftColour = colour => {
   )
 
   return {red, green, blue}
+}
+
+const approach = (value, target) => {
+  const difference = target - value
+  return value + difference * 0.03
 }
 
