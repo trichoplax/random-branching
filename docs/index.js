@@ -1,4 +1,4 @@
-const EXPIRY_PROBABILITY = 0.1
+const EXPIRY_PROBABILITY = 0.091
 let mouseLocation = {x: 0, y: 0}
 let midpoint = {x: 0, y: 0}
 let offset = {x: 0, y: 0}
