@@ -48,7 +48,9 @@ const renderLoopMaker = (canvas, context) => {
   let liveCentres = [...centres]
 
   return function renderLoop() {
-    attemptNewCentre(centres, liveCentres)
+    for (const attempt of [...Array(50)]) {
+      attemptNewCentre(centres, liveCentres)
+    }
 
     let width = canvas.width
     let height = canvas.height
