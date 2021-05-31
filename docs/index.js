@@ -45,6 +45,8 @@ const renderLoopMaker = (canvas, context) => {
     expired: 0,
   }]
 
+  addToGrid(centres[0].location)
+
   let liveCentres = [...centres]
 
   return function renderLoop() {
@@ -83,6 +85,44 @@ const renderLoopMaker = (canvas, context) => {
     window.requestAnimationFrame(renderLoop)
   }
 }
+
+let addToGrid, neighbours
+[addToGrid, neighbours] = (() => {
+  const GRID_CELL_SIZE = 1.99999 ** 0.5  // Just short of root 2 to ensure rounding errors never lead to two centres in the same grid cell
+  const grid = new Object()
+
+  const gridCellCoordinates = location => [
+    Math.floor(location.x / GRID_CELL_SIZE),
+    Math.floor(location.y / GRID_CELL_SIZE)
+  ]
+
+  const gridCellString = (gridX, gridY) => `${gridX},${gridY}`
+
+  const addToGrid = location => {
+    grid[gridCellString(...gridCellCoordinates(location))] = location
+  }
+
+  const neighbours = location => {
+    let gridX, gridY
+    [gridX, gridY] = gridCellCoordinates(location)
+    const neighboursList = []
+
+    for (offsetY of [-2, -1, 0, 1, 2]) {
+      for (offsetX of [-2, -1, 0, 1, 2]) {
+        const candidateX = gridX + offsetX
+        const candidateY = gridY + offsetY
+        const candidate = grid[gridCellString(candidateX, candidateY)]
+        if (candidate) {
+          neighboursList.push(candidate)
+        }
+      }
+    }
+
+    return neighboursList
+  }
+
+  return [addToGrid, neighbours]
+})()
 
 const drawCircleAndDescendants = (context, centre, ancestorSelected) => {
   let adjustedLocation = adjusted(centre.location)
@@ -137,7 +177,7 @@ const drawCircleAndDescendants = (context, centre, ancestorSelected) => {
   }
 }
 
-const adjusted = (location) => ({
+const adjusted = location => ({
   x: (location.x - midpoint.x) * scale + offset.x,
   y: (location.y - midpoint.y) * scale + offset.y,
 })
@@ -160,7 +200,7 @@ const attemptNewCentre = (centres, liveCentres) => {
     let y = potentialParent.location.y + Math.sin(angle) * 2
     let location = {x, y}
 
-    if (!overlap(centres, location)) {
+    if (!overlap(location)) {
       let expired = 0
       let colour = driftColour(potentialParent.colour)
       let children = []
@@ -169,6 +209,7 @@ const attemptNewCentre = (centres, liveCentres) => {
       centres.push(candidate)
       liveCentres.push(candidate)
       potentialParent.children.push(candidate)
+      addToGrid(candidate.location)
     }
 
     if (Math.random() < EXPIRY_PROBABILITY) {
@@ -178,9 +219,9 @@ const attemptNewCentre = (centres, liveCentres) => {
   }
 }
 
-const overlap = (centres, location) => {
-  for (let centre of centres) {
-    if (distance_squared(centre.location, location) < 4) {
+const overlap = location => {
+  for (let neighbour of neighbours(location)) {
+    if (distance_squared(neighbour, location) < 3.999999999) {  // Just short of 4 to prevent rounding causing overlap with parent
       return true
     }
   }
